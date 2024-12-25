@@ -4,6 +4,7 @@ const express = require('express');
 const { google } = require('googleapis');
 const { authenticate } = require('@google-cloud/local-auth');
 const OpenAI = require('openai');
+const path = require('path');
 
 const app = express();
 app.use(express.json());
