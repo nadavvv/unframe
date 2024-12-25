@@ -5,8 +5,15 @@ const { google } = require('googleapis');
 const { authenticate } = require('@google-cloud/local-auth');
 const OpenAI = require('openai');
 const path = require('path');
+const cors = require('cors');  // Add at top with other requires
+
+// Add this before your routes
 
 const app = express();
+app.use(cors({
+  origin: 'http://localhost:5173', // This is Vite's default port
+  credentials: true
+}));
 app.use(express.json());
 
 const SCOPES = ['https://www.googleapis.com/auth/gmail.modify'];
@@ -17,15 +24,19 @@ async function getGmailClient() {
   const auth = await authenticate({
     keyfilePath: path.join(__dirname, 'credentials.json'),
     scopes: SCOPES,
+    port: 3001 
   });
   return google.gmail({ version: 'v1', auth });
 }
 
 // Email fetching with metadata
-app.get('/api/emails', async (req, res) => {
-  try {
+app.get('/api/emails', async (req, res) => {  
+  try {    
     const gmail = await getGmailClient();
     const { after, maxResults = 10, pageToken } = req.query;
+    console.log(gmail);
+    console.log('bah');
+    
     
     let query = '';
     if (after) {
@@ -61,6 +72,8 @@ app.get('/api/emails', async (req, res) => {
       nextPageToken: response.data.nextPageToken
     });
   } catch (error) {
+    console.log(error);
+    
     res.status(500).json({ error: error.message });
   }
 });

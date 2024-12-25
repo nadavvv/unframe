@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import {gmailService} from '../services/gmailService'
 
 export const useEmailStore = defineStore('email', {
   state: () => ({

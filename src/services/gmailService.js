@@ -2,6 +2,8 @@ import axios from 'axios'
 
 export const gmailService = {
   async getEmails(params) {
+    console.log('blash');
+    
     const response = await axios.get('/api/emails', { params })
     return response.data
   },
