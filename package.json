@@ -1,0 +1,21 @@
+{
+  "name": "unframe",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@google-cloud/local-auth": "^3.0.1",
+    "@vue/cli": "^5.0.8",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "googleapis": "^144.0.0",
+    "openai": "^4.77.0",
+    "vue": "^3.5.13"
+  }
+}
