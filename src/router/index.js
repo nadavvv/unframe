@@ -4,14 +4,21 @@ import EmailDetail from '@/views/EmailDetail.vue'
 
 const routes = [
   {
+    path: '/login',
+    name: 'login',
+    component: () => import('@/views/Login.vue')
+  },
+  {
     path: '/',
     name: 'emails',
-    component: EmailList
+    component: EmailList,
+    meta: { requiresAuth: true }
   },
   {
     path: '/email/:id',
     name: 'email-detail',
-    component: EmailDetail
+    component: EmailDetail,
+    meta: { requiresAuth: true }
   }
 ]
 

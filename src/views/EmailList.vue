@@ -4,7 +4,6 @@ import { useEmailStore } from '@/stores/emailStore'
 import EmailItem from '@/components/EmailItem.vue'
 import AnalyticsModal from '@/components/AnalyticsModal.vue'
 
-
 const emailStore = useEmailStore()
 const showAnalytics = ref(false)
 

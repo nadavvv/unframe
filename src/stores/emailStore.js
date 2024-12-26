@@ -15,6 +15,10 @@ export const useEmailStore = defineStore('email', {
       this.loading = true
       try {
         const data = await gmailService.getEmails(params)
+        console.log('test');
+        
+        console.log(data);
+        
         this.emails = data.emails
         this.pageToken = data.nextPageToken
       } finally {
