@@ -11,12 +11,6 @@ import { RouterView } from 'vue-router'
       >
         Emails
       </RouterLink>
-      <RouterLink 
-        to="/analytics" 
-        class="hover:text-blue-500"
-      >
-        Analytics
-      </RouterLink>
     </nav>
     <RouterView />
   </div>

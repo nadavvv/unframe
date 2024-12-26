@@ -1,13 +1,11 @@
-// server.js
 require('dotenv').config();
 const express = require('express');
 const { google } = require('googleapis');
 const { authenticate } = require('@google-cloud/local-auth');
 const OpenAI = require('openai');
 const path = require('path');
-const cors = require('cors');  // Add at top with other requires
-
-// Add this before your routes
+const cors = require('cors');  
+const fs = require('fs').promises;
 
 const app = express();
 app.use(cors({
