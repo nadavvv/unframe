@@ -1,5 +1,7 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { marked } from 'marked'
+import DOMPurify from 'dompurify'
 import { gmailService } from '@/services/gmailService'
 
 const props = defineProps({
@@ -18,6 +20,13 @@ const emit = defineEmits(['close'])
 const aiQuery = ref('')
 const aiResponse = ref('')
 const isLoading = ref(false)
+
+// Convert markdown to sanitized HTML
+const parsedResponse = computed(() => {
+  if (!aiResponse.value) return ''
+  const rawHtml = marked.parse(aiResponse.value)
+  return DOMPurify.sanitize(rawHtml)
+})
 
 const analyzeEmails = async () => {
   if (!aiQuery.value) return
@@ -48,7 +57,7 @@ const analyzeEmails = async () => {
         class="w-full p-2 border rounded mb-4"
         rows="3"
         placeholder="Ask a question about your emails..."
-        />
+      />
       
       <button
         @click="analyzeEmails"
@@ -58,9 +67,50 @@ const analyzeEmails = async () => {
         {{ isLoading ? 'Analyzing...' : 'Analyze' }}
       </button>
       
-      <div v-if="aiResponse" class="mt-4 p-4 bg-gray-50 rounded">
-        {{ aiResponse }}
-      </div>
+      <div 
+        v-if="aiResponse" 
+        class="mt-4 p-4 bg-gray-50 rounded prose prose-sm max-w-none"
+        v-html="parsedResponse"
+      />
     </div>
   </div>
 </template>
+
+<style>
+
+.prose {
+  line-height: 1.6;
+}
+
+.prose h1 {
+  font-size: 1.5em;
+  margin: 1em 0;
+}
+
+.prose h2 {
+  font-size: 1.3em;
+  margin: 0.8em 0;
+}
+
+.prose p {
+  margin: 0.5em 0;
+}
+
+.prose ul, .prose ol {
+  margin: 0.5em 0;
+  padding-left: 1.5em;
+}
+
+.prose code {
+  background-color: #f3f4f6;
+  padding: 0.2em 0.4em;
+  border-radius: 0.2em;
+}
+
+.prose pre {
+  background-color: #f3f4f6;
+  padding: 1em;
+  border-radius: 0.4em;
+  overflow-x: auto;
+}
+</style>
