@@ -4,6 +4,7 @@ const cors = require('cors');
 const sequelize = require('./config/database');
 const authRoutes = require('./routes/auth.routes');
 const gmailRoutes = require('./routes/gmail.routes');
+const analysisRoutes = require('./routes/analysis.routes');
 const authMiddleware = require('./middleware/auth.middleware');
 
 
@@ -18,6 +19,7 @@ app.use(express.json());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/emails', authMiddleware, gmailRoutes);
+app.use('/api/analyze', authMiddleware, analysisRoutes);
 
 sequelize.sync().then(() => {
   console.log('Database synchronized');

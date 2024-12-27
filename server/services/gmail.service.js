@@ -6,19 +6,28 @@ const User = require('../models/user');
 class GmailService {
     async getGmailClient(userId) {
         const user = await User.findByPk(userId);
-        if (!user || !user.googleTokens) {
-            throw new Error('User not authenticated');
+        if (!user) throw new Error('User not found');
+    
+        if (!user.googleTokens) {
+          const auth = await authenticate({
+            keyfilePath: path.join(__dirname, 'credentials.json'),
+            scopes: ['https://www.googleapis.com/auth/gmail.modify'],
+            port: 3001
+          });
+          
+          user.googleTokens = auth.credentials;
+          await user.save();
         }
-        const SCOPES = ['https://www.googleapis.com/auth/gmail.modify'];
-
-           const auth = await authenticate({
-               keyfilePath: path.join(__dirname, 'credentials.json'),
-               scopes: SCOPES,
-               port: 3001 
-             });
-
-            return google.gmail({ version: 'v1', auth });
-          }
+    
+        const oauth2Client = new google.auth.OAuth2(
+          process.env.GOOGLE_CLIENT_ID,
+          process.env.GOOGLE_CLIENT_SECRET,
+          process.env.GOOGLE_REDIRECT_URI
+        );
+        
+        oauth2Client.setCredentials(user.googleTokens);
+        return google.gmail({ version: 'v1', auth: oauth2Client });
+      }
 
     async listEmails(userId, params = {}) {
         const gmail = await this.getGmailClient(userId);
