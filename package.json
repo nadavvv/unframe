@@ -24,6 +24,7 @@
     "fs-extra": "^11.2.0",
     "googleapis": "^144.0.0",
     "jsonwebtoken": "^9.0.2",
+    "lucide-vue-next": "^0.469.0",
     "marked": "^15.0.4",
     "openai": "^4.77.0",
     "pg": "^8.13.1",
@@ -32,7 +33,10 @@
     "sequelize": "^6.37.5",
     "vite": "^6.0.5",
     "vue": "^3.5.13",
-    "vue-router": "^4.5.0"
+    "vue-feather": "^2.0.0",
+    "vue-feather-icons": "^5.1.0",
+    "vue-router": "^4.5.0",
+    "vue-toastification": "^2.0.0-rc.5"
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.15",
