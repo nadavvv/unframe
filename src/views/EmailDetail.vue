@@ -25,13 +25,51 @@ const date = computed(() =>
 
 const sanitizedContent = computed(() => {
   if (!emailStore.selectedEmail?.body) return ''
-  return DOMPurify.sanitize(emailStore.selectedEmail.body, {
+  
+  let content = emailStore.selectedEmail.body
+
+  // Only process plain text content, not existing HTML
+  if (!content.includes('</')) {
+    content = content
+      // Handle bullet points/lists
+      .replace(/^[•\-]\s+(.*?)$/gm, '<li>$1</li>')
+      .replace(/(<li>.*?<\/li>\s*)+/g, '<ul>$&</ul>')
+      
+      // Handle links and emails
+      .replace(/\[\*\*(.*?)\*\*\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>')
+      .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>')
+      .replace(/(?<!href=")(https?:\/\/[^\s<"]+)/g, '<a href="$1" target="_blank">$1</a>')
+      .replace(/(?<!href="mailto:)([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g, '<a href="mailto:$1">$1</a>')
+      
+      // Handle text formatting
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      
+      // Handle line breaks and paragraphs
+      .replace(/\n\s*\n/g, '</p><p>')
+      .replace(/\n/g, '<br>')
+      
+      // Clean up final formatting
+      .replace(/^(.+?)$/, '<p>$1</p>')
+      .replace(/<p>\s*<ul>/g, '<ul>')
+      .replace(/<\/ul>\s*<\/p>/g, '</ul>')
+      
+      // Remove any remaining mailto formatting artifacts
+      .replace(/\(mailto:.*?\)/g, '')
+  } else {
+    // Clean up any malformed HTML
+    content = content
+      .replace(/" target="_blank">/g, '">')
+      .replace(/""/g, '"')
+  }
+
+  return DOMPurify.sanitize(content, {
     ALLOWED_TAGS: [
       'p', 'br', 'strong', 'em', 'u', 'a', 'ul', 'ol', 'li', 
       'blockquote', 'div', 'span', 'table', 'tr', 'td', 'th',
-      'thead', 'tbody', 'img'
+      'thead', 'tbody', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'
     ],
-    ALLOWED_ATTR: ['href', 'src', 'alt', 'style', 'class'],
+    ALLOWED_ATTR: ['href', 'target', 'style', 'class'],
     ALLOW_DATA_ATTR: false
   })
 })
@@ -74,12 +112,30 @@ const sanitizedContent = computed(() => {
 }
 
 .email-content :deep(p) {
-  margin: 0.5rem 0;
+  margin: 1em 0;
+}
+
+.email-content :deep(p:first-child) {
+  margin-top: 0;
+}
+
+.email-content :deep(p:last-child) {
+  margin-bottom: 0;
+}
+
+.email-content :deep(br) {
+  display: block;
+  content: "";
+  margin: 0.5em 0;
 }
 
 .email-content :deep(a) {
   color: #2563eb;
   text-decoration: underline;
+}
+
+.email-content :deep(a + a) {
+  margin-left: 0.25em;
 }
 
 .email-content :deep(ul), .email-content :deep(ol) {
