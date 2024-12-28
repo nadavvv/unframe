@@ -29,13 +29,24 @@ class GmailService {
         return google.gmail({ version: 'v1', auth: oauth2Client });
       }
 
-    async listEmails(userId, params = {}) {
+      async listEmails(userId, params = {}) {
         const gmail = await this.getGmailClient(userId);
+        
+        // Build Gmail query string
+        let query = '';
+        if (params.after) {
+            query += `after:${params.after} `;
+        }
+        if (params.before) {
+            query += `before:${params.before} `;
+        }
+        
         const response = await gmail.users.messages.list({
             userId: 'me',
+            q: query.trim(),
             ...params
         });
-
+    
         return Promise.all(response.data.messages.map(async (message) => {
             const email = await gmail.users.messages.get({
                 userId: 'me',
@@ -43,7 +54,7 @@ class GmailService {
                 format: 'metadata',
                 metadataHeaders: ['From', 'Subject', 'Date']
             });
-
+    
             return {
                 id: email.data.id,
                 sender: email.data.payload.headers.find(h => h.name === 'From')?.value,
