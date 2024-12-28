@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
 import {gmailService} from '../services/gmailService'
+import { useToast } from 'vue-toastification'
+
 
 export const useEmailStore = defineStore('email', {
   state: () => ({
@@ -28,8 +30,18 @@ export const useEmailStore = defineStore('email', {
     },
 
     async deleteEmail(id) {
-      await gmailService.deleteEmail(id)
-      this.emails = this.emails.filter(email => email.id !== id)
+      const toast = useToast()
+      try {
+        await gmailService.deleteEmail(id)
+        this.emails = this.emails.filter(email => email.id !== id)
+        toast.success("Email deleted successfully", {
+          icon: true
+        })
+      } catch (error) {
+        toast.error(error.response?.data?.message || "Failed to delete email", {
+          icon: true
+        })
+      }
     }
   }
 })
