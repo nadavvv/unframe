@@ -1,6 +1,6 @@
-// stores/authStore.js
 import { defineStore } from 'pinia'
 import axios from 'axios'
+import router from '@/router'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -24,6 +24,7 @@ export const useAuthStore = defineStore('auth', {
       this.user = null
       localStorage.removeItem('token')
       delete axios.defaults.headers.common['Authorization']
+      router.push('/login')
     },
     
     async initializeAuth() {
@@ -32,6 +33,13 @@ export const useAuthStore = defineStore('auth', {
         this.token = token
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
       }
+    },
+
+    async handleAuthError(error) {
+      if (error.response?.status === 401) {
+        this.clearToken()
+      }
+      throw error
     }
   }
 })

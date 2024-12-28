@@ -1,43 +1,61 @@
-const { authenticate } = require('@google-cloud/local-auth');
+const { OAuth2Client } = require('google-auth-library');
 const { google } = require('googleapis');
-const path = require('path');
 const User = require('../models/user');
+
 
 class AuthService {
     async authenticateGoogle() {
-        const auth = await authenticate({
-          keyfilePath: path.join(__dirname, '../../credentials.json'),
-          scopes: [
-            'https://www.googleapis.com/auth/gmail.modify',
-            'https://www.googleapis.com/auth/userinfo.email'
-          ],
-          port: 3001
+        const oauth2Client = new OAuth2Client(
+            process.env.GOOGLE_CLIENT_ID,
+            process.env.GOOGLE_CLIENT_SECRET,
+            process.env.GOOGLE_REDIRECT_URI  // Update with your backend callback URL
+        );
+
+        // Generate the url that will be used for authorization
+        const authorizeUrl = oauth2Client.generateAuthUrl({
+            access_type: 'offline',
+            scope: [
+                'https://www.googleapis.com/auth/gmail.modify',
+                'https://www.googleapis.com/auth/userinfo.email',
+                'openid',
+                'email'
+            ],
+            prompt: 'consent'
         });
-    
-        // Get user email using OAuth2
-        const oauth2Client = google.oauth2({ version: 'v2', auth });
-        const userInfo = await oauth2Client.userinfo.get();
-        
+
+        return authorizeUrl;
+    }
+
+    async handleCallback(code) {
+        const oauth2Client = new OAuth2Client(
+            process.env.GOOGLE_CLIENT_ID,
+            process.env.GOOGLE_CLIENT_SECRET,
+            process.env.GOOGLE_REDIRECT_URI  // Same as above
+        );
+
+        // Get tokens using the code
+        const { tokens } = await oauth2Client.getToken(code);
+        oauth2Client.setCredentials(tokens);
+
+        // Get user info
+        const oauth2 = google.oauth2({ version: 'v2', auth: oauth2Client });
+        const userInfo = await oauth2.userinfo.get();
+
         // Check if user exists
         let user = await User.findOne({ where: { email: userInfo.data.email } });
-        
-        if (!user) {
-          user = await User.create({
-            email: userInfo.data.email,
-            googleTokens: auth.credentials
-          });
-        } else {
-          // Update existing user's tokens
-          user.googleTokens = auth.credentials;
-          await user.save();
-        }
-    
-        return user;
-      }
 
-  async getUser(userId) {
-    return User.findByPk(userId);
-  }
+        if (!user) {
+            user = await User.create({
+                email: userInfo.data.email,
+                googleTokens: tokens
+            });
+        } else {
+            user.googleTokens = tokens;
+            await user.save();
+        }
+
+        return user;
+    }
 }
 
 module.exports = new AuthService();

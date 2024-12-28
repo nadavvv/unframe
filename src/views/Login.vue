@@ -1,20 +1,13 @@
 <script setup>
-import { ref } from 'vue'
+import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
-import axios from 'axios'
 
 const router = useRouter()
 const authStore = useAuthStore()
 
 const login = async () => {
-  try {
-    const response = await axios.get('/api/auth/google')
-    authStore.setToken(response.data.token)
-    router.push('/')
-  } catch (error) {
-    console.error('Login failed:', error)
-  }
+  window.location.href = 'http://localhost:3000/api/auth/google'
 }
 </script>
 
