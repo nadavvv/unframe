@@ -17,11 +17,24 @@ A modern web application built with Vue.js and Node.js that allows users to mana
 Before you begin, ensure you have installed:
 - Node.js (v14.0.0 or higher)
 - npm (v6.0.0 or higher)
-- PostgreSQL (v12.0 or higher)
 
 You'll also need:
 - A Google Cloud Platform account with Gmail API enabled
 - An OpenAI API key for the analytics feature
+
+
+## Project Setup
+
+1. Clone the repository:
+```bash
+git clone https://github.com/nadavvv/unframe.git
+cd unframe
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
 
 ## Environment Setup
 
@@ -44,20 +57,6 @@ GOOGLE_REDIRECT_URI=http://localhost:3000/api/auth/callback
 # OpenAI Configuration
 OPENAI_API_KEY=your_openai_api_key
 ```
-
-## Project Setup
-
-1. Clone the repository:
-```bash
-git clone https://github.com/nadavvv/unframe.git
-cd unframe
-```
-
-2. Install dependencies:
-```bash
-npm install
-```
-
 
 ## Running the Application
 
